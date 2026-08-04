@@ -3,7 +3,7 @@ The default docker-compose file will set up:
 
 | Service          | Why                                                       | 
 | ---------------- | --------------------------------------------------------- | 
-| WildDuck         | IMAP, POP3                                                | 
+| WildDuck         | IMAP, POP3, REST API                                      | 
 | WildDuck Webmail | Webmail, creating accounts, <br> editing account settings | 
 | ZoneMTA          | Outbound smtp                                             | 
 | Haraka           | Inbound smtp                                              | 
@@ -11,6 +11,33 @@ The default docker-compose file will set up:
 | Traefik          | Reverse proxy with automatic TLS                          | 
 | MongoDB          | Database used by most services                            | 
 | Redis            | Key-value store used by most services                     | 
+
+## WildDuck REST API
+
+WildDuck exposes a full HTTP API for users, addresses, mailboxes, messages, filters, DKIM, and more. Full reference: https://docs.wildduck.email/
+
+| Access | URL |
+| ------ | --- |
+| Local (from the host) | `http://127.0.0.1:8080` |
+| Public (via Traefik) | `https://api.HOSTNAME` |
+| From other Compose services | `http://wildduck:8080` |
+
+Authenticate with the `X-Access-Token` header. After `setup.sh`, the token is in `config-generated/config-generated/wildduck/api-access-token.txt` (and in `api.toml` as `accessToken`).
+
+```bash
+TOKEN=$(cat config-generated/config-generated/wildduck/api-access-token.txt)
+
+# List users
+curl -s -H "X-Access-Token: $TOKEN" -H "Content-Type: application/json" \
+  http://127.0.0.1:8080/users
+
+# Create a user
+curl -s -X POST -H "X-Access-Token: $TOKEN" -H "Content-Type: application/json" \
+  http://127.0.0.1:8080/users \
+  -d '{"username":"alice","password":"secret","address":"alice@example.com"}'
+```
+
+Point DNS `api.HOSTNAME` at the server (A/CNAME) so Traefik can serve HTTPS for the API. Keep the token secret — it is full admin access to the mail system.
 
 For the default docker-compose file to work without any further setup, you need port 80/443 available for Traefik to get certificates or provide your own certificates mounted as a volume. However, the compose file is not set in stone. You can remove Traefik from the equation and use your own reverse proxy (or configure the applications to handle TLS directly), remove certain services, etc.
 

@@ -108,6 +108,9 @@ if ! $USE_SELF_SIGNED_CERTS; then
     # Uncomment the traefik.http.routers.wildduck-webmail.tls.certresolver line
     sed -i "s|# traefik.http.routers.wildduck-webmail.tls.certresolver: letsencrypt|traefik.http.routers.wildduck-webmail.tls.certresolver: letsencrypt|g" ./config-generated/docker-compose.yml
 
+    # Uncomment the traefik.http.routers.wildduck-api.tls.certresolver line
+    sed -i "s|# traefik.http.routers.wildduck-api.tls.certresolver: letsencrypt|traefik.http.routers.wildduck-api.tls.certresolver: letsencrypt|g" ./config-generated/docker-compose.yml
+
     # Delete the traefik.tcp.routers.zonemta.tls: true line
     sed -i "/traefik.tcp.routers.zonemta.tls: true/d" ./config-generated/docker-compose.yml
 
@@ -119,6 +122,9 @@ if ! $USE_SELF_SIGNED_CERTS; then
 
     # Delete the traefik.http.routers.wildduck-webmail.tls: true line
     sed -i "/traefik.http.routers.wildduck-webmail.tls: true/d" ./config-generated/docker-compose.yml
+
+    # Delete the traefik.http.routers.wildduck-api.tls: true line
+    sed -i "/traefik.http.routers.wildduck-api.tls: true/d" ./config-generated/docker-compose.yml
 
     sed -i "/- \.\/dynamic_conf:\/etc\/traefik\/dynamic_conf:ro/d" ./config-generated/docker-compose.yml
 
@@ -178,6 +184,12 @@ sed -i "s/accessToken=\"somesecretvalue\"/accessToken=\"$ACCESS_TOKEN\"/" ./conf
 sed -i "s/secret=\"a secret cat\"/secret=\"$HMAC_SECRET\"/" ./config-generated/config-generated/wildduck/api.toml
 sed -i "s/\"domainadmin@example.com\"/\"domainadmin@$MAILDOMAIN\"/" ./config-generated/config-generated/wildduck/acme.toml
 sed -i "s/\"https:\/\/wildduck.email\"/\"https:\/\/$MAILDOMAIN\"/" ./config-generated/config-generated/wildduck/acme.toml
+
+# Persist API token for operators (also written into api.toml / webmail config)
+echo "$ACCESS_TOKEN" > ./config-generated/config-generated/wildduck/api-access-token.txt
+chmod 600 ./config-generated/config-generated/wildduck/api-access-token.txt
+echo "WildDuck REST API access token saved to config-generated/config-generated/wildduck/api-access-token.txt"
+echo "API URL (after DNS): https://api.$HOSTNAME  (local: http://127.0.0.1:8080)"
 
 # Haraka
 sed -i "s/#loopSecret: \"secret value\"/loopSecret: \"$SRS_SECRET\"/" ./config-generated/config-generated/haraka/wildduck.yaml
