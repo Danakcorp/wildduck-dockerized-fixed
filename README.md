@@ -16,10 +16,12 @@ The default docker-compose file will set up:
 
 WildDuck exposes a full HTTP API for users, addresses, mailboxes, messages, filters, DKIM, and more. Full reference: https://docs.wildduck.email/
 
+The API is served over plain HTTP (no TLS).
+
 | Access | URL |
 | ------ | --- |
 | Local (from the host) | `http://127.0.0.1:8080` |
-| Public (via Traefik) | `https://api.HOSTNAME` |
+| Public (via Traefik) | `http://api.HOSTNAME` |
 | From other Compose services | `http://wildduck:8080` |
 
 Authenticate with the `X-Access-Token` header. After `setup.sh`, the token is in `config-generated/config-generated/wildduck/api-access-token.txt` (and in `api.toml` as `accessToken`).
@@ -37,7 +39,7 @@ curl -s -X POST -H "X-Access-Token: $TOKEN" -H "Content-Type: application/json" 
   -d '{"username":"alice","password":"secret","address":"alice@example.com"}'
 ```
 
-Point DNS `api.HOSTNAME` at the server (A/CNAME) so Traefik can serve HTTPS for the API. Keep the token secret — it is full admin access to the mail system.
+Point DNS `api.HOSTNAME` at the server (A/CNAME). Traefik serves the API on port 80 without redirecting it to HTTPS. Keep the token secret — it is full admin access to the mail system.
 
 For the default docker-compose file to work without any further setup, you need port 80/443 available for Traefik to get certificates or provide your own certificates mounted as a volume. However, the compose file is not set in stone. You can remove Traefik from the equation and use your own reverse proxy (or configure the applications to handle TLS directly), remove certain services, etc.
 

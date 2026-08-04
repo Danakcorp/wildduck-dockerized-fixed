@@ -18,11 +18,10 @@ services:
       - ./config/wildduck:/wildduck/config
     labels:
       traefik.enable: true
-      # REST API (HTTPS) — manage users, mailboxes, messages, DKIM, etc.
-      traefik.http.routers.wildduck-api.entrypoints: websecure
+      # REST API over plain HTTP (no TLS) — manage users, mailboxes, messages, DKIM, etc.
+      traefik.http.routers.wildduck-api.entrypoints: web
       traefik.http.routers.wildduck-api.rule: Host(`api.HOSTNAME`)
-      # traefik.http.routers.wildduck-api.tls.certresolver: letsencrypt
-      traefik.http.routers.wildduck-api.tls: true
+      traefik.http.routers.wildduck-api.priority: 100
       traefik.http.routers.wildduck-api.service: wildduck-api
       traefik.http.services.wildduck-api.loadbalancer.server.port: 8080
       traefik.tcp.routers.wildduck-imaps.entrypoints: imaps
@@ -149,9 +148,11 @@ services:
     labels:
       traefik.enable: true
       traefik.http.middlewares.redirect-to-https.redirectscheme.scheme: https
+      # Redirect HTTP→HTTPS except for the plain-HTTP REST API host
       traefik.http.routers.redirs.entrypoints: web
       traefik.http.routers.redirs.middlewares: redirect-to-https
-      traefik.http.routers.redirs.rule: hostregexp(`{host:.+}`)
+      traefik.http.routers.redirs.rule: HostRegexp(`{host:.+}`) && !Host(`api.HOSTNAME`)
+      traefik.http.routers.redirs.priority: 1
       
     ports:
       - 80:80/tcp

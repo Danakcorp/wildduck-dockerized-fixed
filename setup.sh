@@ -108,9 +108,6 @@ if ! $USE_SELF_SIGNED_CERTS; then
     # Uncomment the traefik.http.routers.wildduck-webmail.tls.certresolver line
     sed -i "s|# traefik.http.routers.wildduck-webmail.tls.certresolver: letsencrypt|traefik.http.routers.wildduck-webmail.tls.certresolver: letsencrypt|g" ./config-generated/docker-compose.yml
 
-    # Uncomment the traefik.http.routers.wildduck-api.tls.certresolver line
-    sed -i "s|# traefik.http.routers.wildduck-api.tls.certresolver: letsencrypt|traefik.http.routers.wildduck-api.tls.certresolver: letsencrypt|g" ./config-generated/docker-compose.yml
-
     # Delete the traefik.tcp.routers.zonemta.tls: true line
     sed -i "/traefik.tcp.routers.zonemta.tls: true/d" ./config-generated/docker-compose.yml
 
@@ -122,9 +119,6 @@ if ! $USE_SELF_SIGNED_CERTS; then
 
     # Delete the traefik.http.routers.wildduck-webmail.tls: true line
     sed -i "/traefik.http.routers.wildduck-webmail.tls: true/d" ./config-generated/docker-compose.yml
-
-    # Delete the traefik.http.routers.wildduck-api.tls: true line
-    sed -i "/traefik.http.routers.wildduck-api.tls: true/d" ./config-generated/docker-compose.yml
 
     sed -i "/- \.\/dynamic_conf:\/etc\/traefik\/dynamic_conf:ro/d" ./config-generated/docker-compose.yml
 
@@ -189,7 +183,7 @@ sed -i "s/\"https:\/\/wildduck.email\"/\"https:\/\/$MAILDOMAIN\"/" ./config-gene
 echo "$ACCESS_TOKEN" > ./config-generated/config-generated/wildduck/api-access-token.txt
 chmod 600 ./config-generated/config-generated/wildduck/api-access-token.txt
 echo "WildDuck REST API access token saved to config-generated/config-generated/wildduck/api-access-token.txt"
-echo "API URL (after DNS): https://api.$HOSTNAME  (local: http://127.0.0.1:8080)"
+echo "API URL (plain HTTP, after DNS): http://api.$HOSTNAME  (local: http://127.0.0.1:8080)"
 
 # Haraka
 sed -i "s/#loopSecret: \"secret value\"/loopSecret: \"$SRS_SECRET\"/" ./config-generated/config-generated/haraka/wildduck.yaml

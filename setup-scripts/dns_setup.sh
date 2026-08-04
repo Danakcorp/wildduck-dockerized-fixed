@@ -32,7 +32,7 @@ Point the API hostname at this server (A or CNAME), e.g.:
 
 api.$HOSTNAME. IN A $PUBLIC_IP
 
-Then call https://api.$HOSTNAME with header X-Access-Token (token in
+Then call http://api.$HOSTNAME with header X-Access-Token (token in
 config-generated/config-generated/wildduck/api-access-token.txt). Docs: https://docs.wildduck.email/
 
 MX
