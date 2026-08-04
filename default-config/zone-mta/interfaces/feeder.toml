@@ -23,13 +23,17 @@ authentication = true
 maxRecipients = 1000
 
 # Set to true to enable STARTTLS. Do not forget to change default TLS keys
-starttls = false
+# Port 587 is exposed via Traefik TCP passthrough; ZoneMTA handles STARTTLS here.
+# Port 465 remains available via Traefik TLS termination (implicit TLS / SMTPS).
+starttls = true
 
 # set to true to start in TLS mode if using port 465
 # this probably does not work as TLS support with 465 in ZoneMTA is a bit buggy
+# Keep false: Traefik terminates TLS on 465 and forwards plaintext SMTP to this interface.
 secure = false
 
 # define keys for STARTTLS/TLS. These paths are relative to CWD
 # NB! Keys must be accessible by process user or SMTP authentication will fail.
-# key="./keys/example.com-key.pem"
-# cert="./keys/example.com-cert.pem"
+# Mounted from ./certs via docker-compose (same certs as Haraka)
+key="./config/tls_key.pem"
+cert="./config/tls_cert.pem"

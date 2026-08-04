@@ -62,13 +62,22 @@ services:
       - redis
     volumes:
       - ./config/zone-mta:/app/config
+      # Certs for ZoneMTA STARTTLS on port 587 (same files as Haraka)
+      - ./certs/HOSTNAME-key.pem:/app/config/tls_key.pem
+      - ./certs/HOSTNAME.pem:/app/config/tls_cert.pem
     labels:
       traefik.enable: true
+      # SMTPS (implicit TLS) on 465 — Traefik terminates TLS
       traefik.tcp.routers.zonemta.entrypoints: smtps
       traefik.tcp.routers.zonemta.rule: HostSNI(`HOSTNAME`)
       # traefik.tcp.routers.zonemta.tls.certresolver: letsencrypt
       traefik.tcp.routers.zonemta.tls: true
       traefik.tcp.services.zonemta.loadbalancer.server.port: 587
+      # SMTP submission with STARTTLS on 587 — Traefik passes through plaintext TCP;
+      # ZoneMTA handles STARTTLS itself (Traefik cannot negotiate SMTP STARTTLS)
+      traefik.tcp.routers.zonemta-smtp.entrypoints: smtp
+      traefik.tcp.routers.zonemta-smtp.rule: HostSNI(`*`)
+      traefik.tcp.routers.zonemta-smtp.service: zonemta
 
   haraka:
     image: ghcr.io/zone-eu/haraka-plugin-wildduck:5.8.22
@@ -115,6 +124,7 @@ services:
       - "--entrypoints.imaps.address=:993"
       - "--entrypoints.pop3s.address=:995"
       - "--entrypoints.smtps.address=:465"
+      - "--entrypoints.smtp.address=:587"
       - "--providers.docker"
       - "--providers.docker.exposedByDefault=false"
       - "--providers.file=true"
@@ -139,6 +149,7 @@ services:
       - 993:993/tcp
       - 995:995/tcp
       - 465:465/tcp
+      - 587:587/tcp
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik:/data
