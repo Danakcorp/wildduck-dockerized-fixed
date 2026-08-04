@@ -14,7 +14,7 @@ The default docker-compose file will set up:
 
 For the default docker-compose file to work without any further setup, you need port 80/443 available for Traefik to get certificates or provide your own certificates mounted as a volume. However, the compose file is not set in stone. You can remove Traefik from the equation and use your own reverse proxy (or configure the applications to handle TLS directly), remove certain services, etc.
 
-Outbound SMTP supports both SMTPS on port 465 (implicit TLS via Traefik) and submission on port 587 (STARTTLS handled by ZoneMTA).
+Outbound SMTP supports both SMTPS on port 465 (Traefik terminates TLS, ZoneMTA `[smtps]` accepts plaintext AUTH) and submission on port 587 (Traefik TCP passthrough, ZoneMTA `[feeder]` handles STARTTLS).
 
 Before starting please don't forget to install `Docker` and `Docker compose`
 

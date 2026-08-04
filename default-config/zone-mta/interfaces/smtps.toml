@@ -1,0 +1,25 @@
+# Plain SMTP backend for Traefik-terminated SMTPS (public port 465).
+# Traefik handles TLS; ZoneMTA sees plaintext and must NOT require STARTTLS,
+# otherwise clients that already used SSL/TLS fail with:
+# "538 Error: Must issue a STARTTLS command first"
+
+[smtps]
+enabled = true
+
+processes = 1
+
+maxSize = 31457280
+
+host = "0.0.0.0"
+# Internal-only port; Traefik smtps entrypoint forwards here after TLS termination
+port = 465
+
+logger = true
+
+authentication = true
+
+maxRecipients = 1000
+
+# TLS already terminated by Traefik — disable STARTTLS so AUTH is allowed on plaintext
+starttls = false
+secure = false

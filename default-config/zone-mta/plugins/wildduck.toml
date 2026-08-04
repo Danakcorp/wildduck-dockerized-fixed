@@ -2,7 +2,7 @@
 enabled = ["receiver", "sender", "main"]
 
 # to which SMTP interfaces this plugin applies to. Use "*" for all interfaces
-interfaces = ["feeder"]
+interfaces = ["feeder", "smtps"]
 
 # optional hostname to be used in headers
 # defaults to os.hostname()

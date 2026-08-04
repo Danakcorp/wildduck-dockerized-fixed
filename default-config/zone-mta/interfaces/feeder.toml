@@ -24,12 +24,12 @@ maxRecipients = 1000
 
 # Set to true to enable STARTTLS. Do not forget to change default TLS keys
 # Port 587 is exposed via Traefik TCP passthrough; ZoneMTA handles STARTTLS here.
-# Port 465 remains available via Traefik TLS termination (implicit TLS / SMTPS).
+# Port 465 uses the separate [smtps] interface (Traefik TLS termination → plaintext).
 starttls = true
 
 # set to true to start in TLS mode if using port 465
 # this probably does not work as TLS support with 465 in ZoneMTA is a bit buggy
-# Keep false: Traefik terminates TLS on 465 and forwards plaintext SMTP to this interface.
+# Keep false on this interface (use [smtps] + Traefik for public 465).
 secure = false
 
 # define keys for STARTTLS/TLS. These paths are relative to CWD

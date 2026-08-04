@@ -67,17 +67,20 @@ services:
       - ./certs/HOSTNAME.pem:/app/config/tls_cert.pem
     labels:
       traefik.enable: true
-      # SMTPS (implicit TLS) on 465 — Traefik terminates TLS
+      # SMTPS (implicit TLS) on 465 — Traefik terminates TLS, forwards plaintext
+      # to ZoneMTA [smtps] (starttls=false) so AUTH works without a second STARTTLS
       traefik.tcp.routers.zonemta.entrypoints: smtps
       traefik.tcp.routers.zonemta.rule: HostSNI(`HOSTNAME`)
       # traefik.tcp.routers.zonemta.tls.certresolver: letsencrypt
       traefik.tcp.routers.zonemta.tls: true
-      traefik.tcp.services.zonemta.loadbalancer.server.port: 587
+      traefik.tcp.routers.zonemta.service: zonemta-smtps
+      traefik.tcp.services.zonemta-smtps.loadbalancer.server.port: 465
       # SMTP submission with STARTTLS on 587 — Traefik passes through plaintext TCP;
-      # ZoneMTA handles STARTTLS itself (Traefik cannot negotiate SMTP STARTTLS)
+      # ZoneMTA [feeder] handles STARTTLS itself (Traefik cannot negotiate SMTP STARTTLS)
       traefik.tcp.routers.zonemta-smtp.entrypoints: smtp
       traefik.tcp.routers.zonemta-smtp.rule: HostSNI(`*`)
-      traefik.tcp.routers.zonemta-smtp.service: zonemta
+      traefik.tcp.routers.zonemta-smtp.service: zonemta-smtp
+      traefik.tcp.services.zonemta-smtp.loadbalancer.server.port: 587
 
   haraka:
     image: ghcr.io/zone-eu/haraka-plugin-wildduck:5.8.22
