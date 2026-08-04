@@ -104,7 +104,7 @@ services:
       - ./config/rspamd/local.d:/etc/rspamd/local.d
 
   mongo:
-    image: mongo
+    image: mongo:5.0
     restart: unless-stopped
     volumes:
       - mongo:/data/db
@@ -116,7 +116,7 @@ services:
       - redis:/data
 
   traefik:
-    image: traefik:3.3.4
+    image: traefik:3.6
     restart: unless-stopped
     command:
       - "--entrypoints.web.address=:80"
